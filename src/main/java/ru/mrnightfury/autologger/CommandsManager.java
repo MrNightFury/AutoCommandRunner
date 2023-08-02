@@ -31,7 +31,8 @@ public class CommandsManager {
 			if (file.exists()) {
 				commands.clear();
 				BufferedReader br = new BufferedReader(new FileReader(file));
-				JsonArray arr = new JsonParser().parse(br).getAsJsonArray();
+				JsonArray arr = new Gson().fromJson(br, JsonArray.class);
+//				new JsonParser().parse(br).getAsJsonArray();
 				for (JsonElement link : arr.asList()) {
 					JsonObject obj = link.getAsJsonObject();
 					String command = obj.get("command").getAsString();

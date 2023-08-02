@@ -48,7 +48,6 @@ public abstract class AddServerScreenMixin extends Screen {
 
 	@Inject(at = @At("HEAD"), method = "init()V")
 	private void init (CallbackInfo info) {
-		Log.info(LogCategory.LOG, "asdasd");
 //		this.commandField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 146, 200, 20, Text.translatable("addServer.enterIp"));
 		this.commandField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 146, 200, 20, Text.translatable("autologger:addServerScreen.enterCommand"));
 		this.commandField.setMaxLength(128);
