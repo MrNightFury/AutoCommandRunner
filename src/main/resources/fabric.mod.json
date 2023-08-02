@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "autologger",
+  "version": "${version}",
+  "name": "AutoLogger",
+  "description": "",
+  "authors": [],
+  "contact": {
+    "repo": "https://github.com/MrCre/AutoLogger"
+  },
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "ru.mrnightfury.autologger.AutoLoggerClient"
+    ],
+    "main": [
+      "ru.mrnightfury.autologger.AutoLogger"
+    ],
+    "modmenu": [
+      "ru.mrnightfury.autologger.ModMenuLoader"
+    ]
+  },
+  "mixins": [
+    "autologger.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
