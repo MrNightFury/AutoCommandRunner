@@ -1,37 +1,31 @@
-package ru.mrnightfury.autologger.mixins;
+package ru.mrnightfury.autocommandrunner.mixins;
 
-import net.fabricmc.loader.impl.util.log.Log;
-import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.AddServerScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableTextContent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import ru.mrnightfury.autologger.CommandsManager;
+import ru.mrnightfury.autocommandrunner.CommandsManager;
 
 @Mixin(AddServerScreen.class)
 public abstract class AddServerScreenMixin extends Screen {
 	@Shadow @Final private ServerInfo server;
-
 	@Accessor
 	abstract ServerInfo getServer();
 
+	@Unique
 	private TextFieldWidget commandField;
-	private String command;
 	protected AddServerScreenMixin(Text title) {
 		super(title);
 	}
-
-//	@ModifyArg(method = "init()V", at = @At(value = "INVOKE", target = ""))
 
 	@ModifyConstant(method = "init()V", constant = @Constant(intValue = 72))
 	public int foo1(int x) {
@@ -48,17 +42,12 @@ public abstract class AddServerScreenMixin extends Screen {
 
 	@Inject(at = @At("HEAD"), method = "init()V")
 	private void init (CallbackInfo info) {
-//		this.commandField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 146, 200, 20, Text.translatable("addServer.enterIp"));
 		this.commandField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 146, 200, 20, Text.translatable("autologger:addServerScreen.enterCommand"));
 		this.commandField.setMaxLength(128);
 		String command = CommandsManager.getCommand(this.server.address);
 		this.commandField.setText(command == null ? "" : command);
 		this.addSelectableChild(this.commandField);
 		this.addDrawableChild(this.commandField);
-
-
-//		this.commandField.setText(this.server.address);
-//		this.commandField.setChangedListener(command -> this.updateAddButton());
 	}
 
 	@Inject(at = @At("HEAD"), method = "addAndClose()V")

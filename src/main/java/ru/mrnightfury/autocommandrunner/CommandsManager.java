@@ -1,12 +1,12 @@
-package ru.mrnightfury.autologger;
+package ru.mrnightfury.autocommandrunner;
 
 import com.google.gson.*;
 import com.google.gson.annotations.Expose;
-import com.terraformersmc.modmenu.ModMenu;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
-import net.fabricmc.loader.impl.util.log.LogLevel;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.ServerList;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -19,46 +19,55 @@ public class CommandsManager {
 		if (file != null) {
 			return;
 		}
-		file = new File(FabricLoader.getInstance().getConfigDir().toFile(), AutoLogger.MOD_ID + ".json");
+		file = new File(FabricLoader.getInstance().getConfigDir().toFile(), AutoCommandRunner.MOD_ID + ".json");
 	}
 
 	public static void load() {
 		prepareConfigFile();
 		if (!file.exists()) {
+			Log.info(LogCategory.LOG, "File not found, creating...");
 			save();
 		}
+		ServerList list = new ServerList(MinecraftClient.getInstance());
+		list.loadFile();
+
 		try {
-			if (file.exists()) {
-				commands.clear();
-				BufferedReader br = new BufferedReader(new FileReader(file));
-				JsonArray arr = new Gson().fromJson(br, JsonArray.class);
-//				new JsonParser().parse(br).getAsJsonArray();
-				for (JsonElement link : arr.asList()) {
-					JsonObject obj = link.getAsJsonObject();
-					String command = obj.get("command").getAsString();
-					commands.add(new Command(obj.get("address").getAsString(),
+			commands.clear();
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			JsonArray arr = new Gson().fromJson(br, JsonArray.class);
+			boolean isOutdated = false;
+			for (JsonElement link : arr.asList()) {
+				JsonObject obj = link.getAsJsonObject();
+				String address = obj.get("address").getAsString();
+				String command = obj.get("command").getAsString();
+				if (list.get(address) != null) {
+					commands.add(new Command(address,
 							command.charAt(0) == '/' ? command.substring(1) : command));
+				} else {
+					isOutdated = true;
 				}
 			}
+			if (isOutdated) {
+				Log.info(LogCategory.LOG, "Server commands file outdated, rewriting");
+				save();
+			}
 		} catch (Exception e) {
-			Log.error(LogCategory.LOG, "Couldn't load ");
-			e.printStackTrace();
+			Log.error(LogCategory.LOG, "Couldn't load server commands file");
+			Log.error(LogCategory.LOG, e.getMessage());
 		}
 	}
 
 	public static void save() {
-//		ModMenu.clearModCountCache();
 		prepareConfigFile();
 		Gson g = new GsonBuilder().setPrettyPrinting().create();
 		String jsonString = g.toJson(commands);
-//		Log.log(LogLevel.INFO, LogCategory.LOG, jsonString);
 
 		try (FileWriter fileWriter = new FileWriter(file)) {
 			fileWriter.write(jsonString);
 			Log.info(LogCategory.LOG, "Successfully saved commands");
 		} catch (IOException e) {
 			System.err.println("Couldn't save Commands list");
-			e.printStackTrace();
+			Log.error(LogCategory.LOG, e.getMessage());
 		}
 	}
 
@@ -82,6 +91,7 @@ public class CommandsManager {
 			commands.remove(com);
 		}
 		commands.add(new Command(address, command));
+		Log.info(LogCategory.LOG, "Command added, saving...");
 		save();
 	}
 

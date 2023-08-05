@@ -1,4 +1,4 @@
-package ru.mrnightfury.autologger;
+package ru.mrnightfury.autocommandrunner;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
@@ -18,7 +18,7 @@ public class ModMenuLoader implements ModMenuApi {
 		if (file != null) {
 			return;
 		}
-		file = new File(FabricLoader.getInstance().getConfigDir().toFile(), AutoLogger.MOD_ID + ".json");
+		file = new File(FabricLoader.getInstance().getConfigDir().toFile(), AutoCommandRunner.MOD_ID + ".json");
 	}
 
 	private static void load() {
